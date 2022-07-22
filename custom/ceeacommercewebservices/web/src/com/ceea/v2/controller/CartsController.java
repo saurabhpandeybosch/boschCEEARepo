@@ -527,32 +527,37 @@ public class CartsController extends BaseCommerceController
 	}
 
 	//occ webservices
-	@Secured(
-	{ "ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOEMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT" })
-	@RequestMapping(value = "/{cartId}/entries", method = RequestMethod.POST, consumes =
-	{ MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	@ResponseBody
-	@SiteChannelRestriction(allowedSiteChannelsProperty = API_COMPATIBILITY_B2C_CHANNELS)
-	@ApiOperation(nickname = "createCartEntry", value = "Adds a product to the cart.", notes = "Adds a product to the cart.")
-	@ApiBaseSiteIdUserIdAndCartIdParam
-	public CartModificationWsDTO createCartEntry(@PathVariable
-	final String baseSiteId,
-			@ApiParam(value = "Request body parameter that contains details such as the product code (product.code), the quantity of product (quantity), and the pickup store name (deliveryPointOfService.name).\n\nThe DTO is in XML or .json format.", required = true)
-			@RequestBody
-			final OrderEntryWsDTO entry, @ApiFieldsParam
-			@RequestParam(defaultValue = DEFAULT_FIELD_SET)
-			final String fields) throws CommerceCartModificationException
-	{
-		if (entry.getQuantity() == null)
-		{
-			entry.setQuantity(Long.valueOf(DEFAULT_PRODUCT_QUANTITY));
-		}
-
-		validate(entry, ENTRY, orderEntryCreateValidator);
-
-		final String pickupStore = entry.getDeliveryPointOfService() == null ? null : entry.getDeliveryPointOfService().getName();
-		return addCartEntryInternal(baseSiteId, entry.getProduct().getCode(), entry.getQuantity().longValue(), pickupStore, fields);
-	}
+	/*
+	 * @Secured( { "ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOEMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT" })
+	 *
+	 * @RequestMapping(value = "/{cartId}/entries", method = RequestMethod.POST, consumes = {
+	 * MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	 *
+	 * @ResponseBody
+	 *
+	 * @SiteChannelRestriction(allowedSiteChannelsProperty = API_COMPATIBILITY_B2C_CHANNELS)
+	 *
+	 * @ApiOperation(nickname = "createCartEntry", value = "Adds a product to the cart.", notes =
+	 * "Adds a product to the cart.")
+	 *
+	 * @ApiBaseSiteIdUserIdAndCartIdParam public CartModificationWsDTO createCartEntry(@PathVariable final String
+	 * baseSiteId,
+	 *
+	 * @ApiParam(value =
+	 * "Request body parameter that contains details such as the product code (product.code), the quantity of product (quantity), and the pickup store name (deliveryPointOfService.name).\n\nThe DTO is in XML or .json format."
+	 * , required = true)
+	 *
+	 * @RequestBody final OrderEntryWsDTO entry, @ApiFieldsParam
+	 *
+	 * @RequestParam(defaultValue = DEFAULT_FIELD_SET) final String fields) throws CommerceCartModificationException { if
+	 * (entry.getQuantity() == null) { entry.setQuantity(Long.valueOf(DEFAULT_PRODUCT_QUANTITY)); }
+	 *
+	 * validate(entry, ENTRY, orderEntryCreateValidator);
+	 *
+	 * final String pickupStore = entry.getDeliveryPointOfService() == null ? null :
+	 * entry.getDeliveryPointOfService().getName(); return addCartEntryInternal(baseSiteId, entry.getProduct().getCode(),
+	 * entry.getQuantity().longValue(), pickupStore, fields); }
+	 */
 
 	//occ webservices
 	@Secured(
@@ -1273,5 +1278,40 @@ public class CartsController extends BaseCommerceController
 						LowStockException.NO_STOCK, productCode);
 			}
 		}
+	}
+	@Secured( { "ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOEMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT" })
+	@RequestMapping(value = "/{cartId}/entries", method = RequestMethod.POST, consumes =
+	{ MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	@ResponseBody
+	@SiteChannelRestriction(allowedSiteChannelsProperty = API_COMPATIBILITY_B2C_CHANNELS)
+	@ApiOperation(nickname = "createCartEntry", value = "Adds a product to the cart.", notes = "Adds a product to the cart.")
+	@ApiBaseSiteIdUserIdAndCartIdParam
+	public List<CartModificationWsDTO> createCartEntry(@PathVariable
+	final String baseSiteId,
+			@ApiParam(value = "Request body parameter that contains details such as the product code (product.code), the quantity of product (quantity), and the pickup store name (deliveryPointOfService.name).\n\nThe DTO is in XML or .json format.", required = true)
+			@RequestBody
+			final List<OrderEntryWsDTO> entries, @ApiFieldsParam
+			@RequestParam(defaultValue = DEFAULT_FIELD_SET)
+			final String fields) throws CommerceCartModificationException
+	{
+		final List<CartModificationWsDTO> cartModificationWsDTOList = new ArrayList<CartModificationWsDTO>();
+		if (CollectionUtils.isNotEmpty(entries))
+		{
+			for (final OrderEntryWsDTO entry : entries)
+			{
+				if (entry.getQuantity() == null)
+				{
+					entry.setQuantity(Long.valueOf(DEFAULT_PRODUCT_QUANTITY));
+				}
+
+				validate(entry, ENTRY, orderEntryCreateValidator);
+
+				final String pickupStore = entry.getDeliveryPointOfService() == null ? null
+						: entry.getDeliveryPointOfService().getName();
+				cartModificationWsDTOList.add(addCartEntryInternal(baseSiteId, entry.getProduct().getCode(),
+						entry.getQuantity().longValue(), pickupStore, fields));
+			}
+		}
+		return cartModificationWsDTOList;
 	}
 }
