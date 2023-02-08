@@ -248,4 +248,10 @@
 	<property name="catalogVersionService" ref="catalogVersionService"/>
 	</bean>
 	
+	
+	<alias name="ceeaPLPPopulator" alias="commerceSearchResultProductPopulator"/>
+    <bean id="ceeaPLPPopulator"
+          class="com.ceea.facades.populators.CeeaPLPPopulator"
+          parent="variantCommerceSearchResultProductPopulator">
+    </bean>
 </beans>

@@ -572,4 +572,12 @@
 	<alias name="ceeaProductSendAction" alias="ceeaProductSendAction"/>
 	<bean id="ceeaProductSendAction" class="com.ceea.core.actions.CeeaProductSendAction"  parent="abstractAction"/>
 
+<alias name="primaryImageValueProvider" alias="primaryImageValueProvider"/>
+	<bean id="primaryImageValueProvider" class="com.ceea.core.search.solrfacetsearch.provider.impl.PrimaryImageValueProvider">
+		<property name="fieldNameProvider" ref="solrFieldNameProvider" />
+	</bean>
+	<alias name="threeDImageValueProvider" alias="threeDImageValueProvider"/>
+	<bean id="threeDImageValueProvider" class="com.ceea.core.search.solrfacetsearch.provider.impl.ThreeDImageValueProvider">
+		<property name="fieldNameProvider" ref="solrFieldNameProvider" />
+	</bean>
 </beans>

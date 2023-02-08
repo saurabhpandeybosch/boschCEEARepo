@@ -1,21 +1,20 @@
 package com.ceea.facades.populators;
 
-import com.ceea.facades.product.data.AnnotationData;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hybris.platform.commercefacades.product.converters.populator.ProductPopulator;
 import de.hybris.platform.commercefacades.product.data.ImageData;
 import de.hybris.platform.commercefacades.product.data.ProductData;
 import de.hybris.platform.core.model.media.MediaModel;
 import de.hybris.platform.core.model.product.ProductModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import com.ceea.core.utils.AnnotationJSonUtil;
 
 
 /**
@@ -49,6 +48,7 @@ public class CeeaProductPopulator extends ProductPopulator
 	@Override
 	public void populate(final ProductModel source, final ProductData target)
 	{
+
 		target.setAnnotation(source.getAnnotation());
 		final MediaModel media = source.getThreeDimensionalImage();
 		if (media != null)
@@ -60,7 +60,7 @@ public class CeeaProductPopulator extends ProductPopulator
 		if(null!=primaryImg) {
 			target.setPrimaryImgURL(primaryImg.getURL());
 		}
-		
+
 		target.setProductVideoUrl(source.getProductVideoUrl());
 		final MediaModel productPDF = source.getProductPDF();
 		if (productPDF != null)
@@ -70,21 +70,11 @@ public class CeeaProductPopulator extends ProductPopulator
 		}
 		// super.populate(source, target);
 		try {
-			convertJsonToObject(target);
-		} catch (IOException e) {
+			AnnotationJSonUtil.convertJsonToObject(target);
+		} catch (final IOException e) {
 			LOG.info("Exception Occured :: "+e.getMessage());
 		}
 	}
 
-	private void convertJsonToObject(ProductData target) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		AnnotationData[] readValue=null;
-		if(StringUtils.isNotEmpty(target.getAnnotation())){
-			readValue = mapper.readValue(target.getAnnotation(), AnnotationData[].class);
-			List<AnnotationData> list = Arrays.asList(readValue);
-			target.setAnnotationList(list);
-		}
-
-	}
 }
 
